@@ -1,134 +1,198 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navigation from './components/Navigation';
+import Home from './pages/Home';
+import TechnologyList from './pages/TechnologyList';
+import TechnologyDetail from './pages/TechnologyDetail';
+import AddTechnology from './pages/AddTechnology';
+import Statistics from './pages/Statistics';
+import Settings from './pages/Settings';
+import ContentForm from './components/ContactForm';
+import WindowSizeTracker from './components/WindowSizeTracker';
+import RoadmapImporter from './components/RoadmapImporter';
+import TechnologySearch from './components/TechnologySearch';
+import useTechnologiesApi from './hooks/useTechnologiesApi';
 import './App.css';
-import TechnologyCard from './components/TechnologyCard';
-import ProgressHeader from './components/ProgressHeader';
-import QuickActions from './components/QuickActions';
-import TechnologyFilter from './components/TechnologyFilter';
 
 function App() {
-  const [technologies, setTechnologies] = useState([
-    { 
-      id: 1, 
-      title: 'React Components', 
-      description: 'Изучение функциональных и классовых компонентов, их жизненного цикла и лучших практик', 
-      status: 'completed',
-    },
-    { 
-      id: 2, 
-      title: 'JSX Syntax', 
-      description: 'Освоение синтаксиса JSX, работа с выражениями JavaScript в разметке', 
-      status: 'completed',
-    },
-    { 
-      id: 3, 
-      title: 'Props and State', 
-      description: 'Работа со свойствами и состоянием компонентов, управление данными', 
-      status: 'in-progress',
-    },
-    { 
-      id: 4, 
-      title: 'Event Handling', 
-      description: 'Обработка событий в React компонентах', 
-      status: 'in-progress',
-    },
-    { 
-      id: 5, 
-      title: 'Hooks', 
-      description: 'Изучение хуков: useState, useEffect, useContext и создание собственных хуков', 
-      status: 'not-started',
-    },
-    { 
-      id: 6, 
-      title: 'Routing', 
-      description: 'Настройка маршрутизации с React Router', 
-      status: 'not-started',
-    }
-  ]);
+  const [filter, setFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState(null);
+  const [forceUpdate, setForceUpdate] = useState(0);
 
-  const [activeFilter, setActiveFilter] = useState('all');
+  // Используем кастомный хук для работы с API
+  const { 
+    technologies, 
+    loading, 
+    error, 
+    refetch, 
+    addTechnology: apiAddTechnology,
+    updateTechnologies: apiUpdateTechnologies
+  } = useTechnologiesApi();
 
-  // Функция изменения статуса технологии
-  const updateTechnologyStatus = (id) => {
-    setTechnologies(prevTech => 
-      prevTech.map(tech => {
-        if (tech.id === id) {
-          const statusOrder = ['not-started', 'in-progress', 'completed'];
-          const currentIndex = statusOrder.indexOf(tech.status);
-          const nextIndex = (currentIndex + 1) % statusOrder.length;
-          return { ...tech, status: statusOrder[nextIndex] };
-        }
-        return tech;
-      })
-    );
+  // Принудительное обновление при изменении technologies
+  useEffect(() => {
+    setForceUpdate(prev => prev + 1);
+  }, [technologies]);
+
+  // Функции для управления технологиями
+  const updateTechnologyStatus = (techId) => {
+    const updatedTech = technologies.map(tech => {
+      if (tech.id === techId) {
+        const statuses = ['not-started', 'in-progress', 'completed'];
+        const currentIndex = statuses.indexOf(tech.status);
+        const nextIndex = (currentIndex + 1) % statuses.length;
+        return { ...tech, status: statuses[nextIndex] };
+      }
+      return tech;
+    });
+    
+    apiUpdateTechnologies(updatedTech);
   };
 
-  // Функции для быстрых действий
+const updateTechnologyNotes = (techId, newNotes) => {
+  console.log('Updating notes for tech:', techId, 'Notes:', newNotes);
+  
+  const updatedTech = technologies.map(tech =>
+    tech.id === techId ? { ...tech, notes: newNotes } : tech
+  );
+  
+  apiUpdateTechnologies(updatedTech);
+};
+
   const markAllAsCompleted = () => {
-    setTechnologies(prevTech => 
-      prevTech.map(tech => ({ ...tech, status: 'completed' }))
-    );
+    const updatedTech = technologies.map(tech => ({ 
+      ...tech, 
+      status: 'completed' 
+    }));
+    apiUpdateTechnologies(updatedTech);
   };
 
   const resetAllStatuses = () => {
-    setTechnologies(prevTech => 
-      prevTech.map(tech => ({ ...tech, status: 'not-started' }))
+    const updatedTech = technologies.map(tech => ({ 
+      ...tech, 
+      status: 'not-started' 
+    }));
+    apiUpdateTechnologies(updatedTech);
+  };
+
+  const randomNextTechnology = () => {
+    const availableTech = technologies.filter(tech => 
+      tech.status === 'not-started' || tech.status === 'in-progress'
     );
-  };
-
-  const randomizeNextTechnology = () => {
-    const notStartedTech = technologies.filter(tech => tech.status === 'not-started');
-    if (notStartedTech.length > 0) {
-      const randomTech = notStartedTech[Math.floor(Math.random() * notStartedTech.length)];
+    
+    if (availableTech.length > 0) {
+      const randomTech = availableTech[Math.floor(Math.random() * availableTech.length)];
       updateTechnologyStatus(randomTech.id);
-      alert(`Следующая технология для изучения: ${randomTech.title}`);
-    } else {
-      alert('Все технологии уже начаты или завершены!');
     }
   };
 
-  // Фильтрация технологий
-  const filteredTechnologies = technologies.filter(tech => {
-    switch (activeFilter) {
-      case 'not-started':
-        return tech.status === 'not-started';
-      case 'in-progress':
-        return tech.status === 'in-progress';
-      case 'completed':
-        return tech.status === 'completed';
-      default:
-        return true;
+  // Функция для добавления технологии через API
+  const addTechnology = async (techData) => {
+    try {
+      await apiAddTechnology(techData);
+    } catch (err) {
+      console.error('Ошибка при добавлении технологии:', err);
+      throw err;
     }
-  });
+  };
+
+  // Функция для принудительного обновления данных
+  const handleRefresh = () => {
+    refetch();
+    setSearchResults(null);
+  };
+
+  // Определяем какие технологии показывать (поиск или все)
+  const displayedTechnologies = searchResults || technologies;
+
+  if (loading) {
+    return (
+      <div className="app-loading">
+        <div className="spinner"></div>
+        <p>Загрузка технологий...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="app">
-      <div className="app__container">
-        <ProgressHeader technologies={technologies} />
+    <Router>
+      <div className="App" key={forceUpdate}>
+        <Navigation />
+        <WindowSizeTracker />
         
-        <QuickActions 
-          onMarkAllCompleted={markAllAsCompleted}
-          onResetAll={resetAllStatuses}
-          onRandomNext={randomizeNextTechnology}
-        />
-
-        <TechnologyFilter 
-          activeFilter={activeFilter}
-          onFilterChange={setActiveFilter}
-          technologies={technologies}
-        />
-        
-        <div className="technologies-grid">
-          {filteredTechnologies.map(technology => (
-            <TechnologyCard
-              key={technology.id}
-              technology={technology}
-              onStatusChange={updateTechnologyStatus}
+        <main className="main-content">
+          {/* Компоненты для работы с API */}
+          <div className="api-components">
+            <RoadmapImporter onImportComplete={handleRefresh} />
+            <TechnologySearch 
+              technologies={technologies}
+              onSearch={setSearchResults} 
             />
-          ))}
-        </div>
+          </div>
+
+          {error && (
+            <div className="app-error">
+              <p>{error}</p>
+              <button onClick={handleRefresh}>Попробовать снова</button>
+            </div>
+          )}
+
+          <Routes>
+            <Route path="/" element={
+              <Home 
+                technologies={displayedTechnologies}
+                filter={filter}
+                setFilter={setFilter}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                onStatusChange={updateTechnologyStatus}
+                onNotesChange={updateTechnologyNotes}
+                onMarkAllCompleted={markAllAsCompleted}
+                onResetAll={resetAllStatuses}
+                onRandomNext={randomNextTechnology}
+                onRefresh={handleRefresh}
+              />
+            } />
+            <Route path="/technologies" element={
+              <TechnologyList 
+                technologies={displayedTechnologies}
+                onRefresh={handleRefresh}
+                onStatusChange={updateTechnologyStatus}
+              />
+            } />
+            <Route path="/technology/:techId" element={
+              <TechnologyDetail 
+                technologies={technologies}
+                onStatusChange={updateTechnologyStatus}
+                onNotesChange={updateTechnologyNotes}
+              />
+            } />
+            <Route path="/add-technology" element={
+              <AddTechnology 
+                onAddTechnology={addTechnology}
+              />
+            } />
+            <Route path="/statistics" element={
+              <Statistics 
+                technologies={technologies}
+              />
+            } />
+            <Route path="/settings" element={
+              <Settings 
+                onRefreshData={handleRefresh}
+                onMarkAllCompleted={markAllAsCompleted}
+                onResetAll={resetAllStatuses}
+              />
+            } />
+          </Routes>
+        </main>
+
+        <ContentForm />
       </div>
-    </div>
+    </Router>
   );
 }
 
-export default App;;
+
+export default App;

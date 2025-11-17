@@ -1,37 +1,61 @@
 import React from 'react';
 import './TechnologyFilter.css';
 
-function TechnologyFilter({ activeFilter, onFilterChange, technologies }) {
-  const getStatusCount = (status) => {
-    return technologies.filter(tech => tech.status === status).length;
-  };
-
-  const filters = [
-    { key: 'all', label: 'Все технологии', count: technologies.length },
-    { key: 'not-started', label: 'Не начатые', count: getStatusCount('not-started') },
-    { key: 'in-progress', label: 'В процессе', count: getStatusCount('in-progress') },
-    { key: 'completed', label: 'Выполненные', count: getStatusCount('completed') }
-  ];
-
+const TechnologyFilter = ({ 
+  filter, 
+  onFilterChange, 
+  searchQuery, 
+  onSearchChange,
+  filteredCount,
+  totalCount 
+}) => {
   return (
     <div className="technology-filter">
-      <h3 className="technology-filter__title">Фильтр по статусу</h3>
-      <div className="technology-filter__buttons">
-        {filters.map(filter => (
-          <button
-            key={filter.key}
-            className={`technology-filter__button ${
-              activeFilter === filter.key ? 'technology-filter__button--active' : ''
-            }`}
-            onClick={() => onFilterChange(filter.key)}
-          >
-            {filter.label}
-            <span className="technology-filter__count">({filter.count})</span>
-          </button>
-        ))}
+      <h3>Фильтр и поиск</h3>
+      
+      <div className="search-box">
+        <input
+          type="text"
+          placeholder="Поиск по названию или описанию..."
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+        />
+        <div className="search-results">
+          <span>Найдено: </span>
+          <span className="results-count">
+            {filteredCount} из {totalCount}
+          </span>
+        </div>
+      </div>
+      
+      <div className="filter-buttons">
+        <button 
+          className={filter === 'all' ? 'active' : ''}
+          onClick={() => onFilterChange('all')}
+        >
+          Все
+        </button>
+        <button 
+          className={filter === 'not-started' ? 'active' : ''}
+          onClick={() => onFilterChange('not-started')}
+        >
+          Не начатые
+        </button>
+        <button 
+          className={filter === 'in-progress' ? 'active' : ''}
+          onClick={() => onFilterChange('in-progress')}
+        >
+          В процессе
+        </button>
+        <button 
+          className={filter === 'completed' ? 'active' : ''}
+          onClick={() => onFilterChange('completed')}
+        >
+          Завершённые
+        </button>
       </div>
     </div>
   );
-}
+};
 
 export default TechnologyFilter;

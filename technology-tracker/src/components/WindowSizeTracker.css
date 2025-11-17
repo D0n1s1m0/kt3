@@ -1,31 +1,111 @@
+/* WindowSizeTracker.css - Glass Morphism */
 .window-tracker {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e1e5e9;
+  background: rgba(26, 27, 46, 0.7);
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+}
+
+.window-tracker::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
 }
 
 .window-tracker h2 {
-  margin: 0 0 15px 0;
+  margin: 0 0 20px 0;
+  color: var(--text-primary);
   font-size: 1.25rem;
-  color: #1f2937;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.window-tracker h2::before {
+  content: '📐';
+  font-size: 1.1rem;
 }
 
 .size-info {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
 }
 
 .size-info p {
   margin: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.size-info p:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
 }
 
 .size-info strong {
-  color: #8b5cf6;
+  color: var(--primary-color);
   font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 480px) {
+  .size-info {
+    grid-template-columns: 1fr;
+  }
+  
+  .size-info p {
+    text-align: center;
+  }
+}
+
+/* Анимация изменения значений */
+@keyframes valueChange {
+  0% {
+    background: rgba(139, 92, 246, 0.2);
+  }
+  100% {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.size-info p.changing {
+  animation: valueChange 0.5s ease;
+}
+
+/* Индикатор типа экрана */
+.screen-type-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.screen-type-mobile {
+  background-color: var(--error-color);
+}
+
+.screen-type-tablet {
+  background-color: var(--warning-color);
+}
+
+.screen-type-desktop {
+  background-color: var(--success-color);
 }

@@ -1,138 +1,156 @@
+/* TechnologyCard.css - Dark Theme */
 .technology-card {
-  border: 2px solid #e1e5e9;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 16px;
-  background-color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+  border-left: 6px solid var(--border-color);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  border-left: 6px solid #e1e5e9;
+  height: fit-content;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.technology-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .technology-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-hover);
+  background: var(--card-bg-hover);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
-.technology-card--completed {
-  border-left-color: #10b981;
-  background-color: #f0fdf4;
+.technology-card:hover::before {
+  opacity: 1;
 }
 
-.technology-card--in-progress {
-  border-left-color: #f59e0b;
-  background-color: #fffbeb;
+.status-not-started {
+  border-left-color: var(--error-color);
 }
 
-.technology-card--not-started {
-  border-left-color: #6b7280;
-  background-color: #f9fafb;
+.status-in-progress {
+  border-left-color: var(--warning-color);
 }
 
-.technology-card__header {
+.status-completed {
+  border-left-color: var(--success-color);
+}
+
+.card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  gap: 12px;
 }
 
-.technology-card__title {
+.card-header h3 {
   margin: 0;
+  color: var(--text-primary);
+  flex: 1;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
-  flex: 1;
+  line-height: 1.4;
 }
 
-.technology-card__status-icon {
-  font-size: 1.5rem;
-  margin-left: 12px;
-}
-
-.technology-card__description {
-  margin: 0 0 16px 0;
-  color: #6b7280;
-  line-height: 1.5;
-}
-
-.technology-card__footer {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.technology-card__status {
-  padding: 6px 12px;
+.status-badge {
+  padding: 6px 16px;
   border-radius: 20px;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   transition: all 0.3s ease;
 }
 
-.technology-card__status--completed {
-  background-color: #10b981;
-  color: white;
+.status-badge.not-started {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-.technology-card__status--in-progress {
-  background-color: #f59e0b;
-  color: white;
+.status-badge.in-progress {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
-.technology-card__status--not-started {
-  background-color: #6b7280;
-  color: white;
+.status-badge.completed {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-/* Анимация изменения статуса */
-.technology-card {
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.technology-card.technology-card--changing {
-  animation: pulse 0.5s ease-in-out;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-  100% { transform: scale(1); }
-}
-/* Стили для заметок */
-.notes-section {
-  margin: 15px 0;
-  padding: 15px;
-  background-color: rgba(255, 255, 255, 0.7);
-  border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+.description {
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  line-height: 1.6;
+  font-size: 0.95rem;
 }
 
 .notes-section h4 {
-  margin: 0 0 10px 0;
+  margin: 0 0 12px 0;
+  color: var(--text-primary);
   font-size: 0.9rem;
-  color: #4b5563;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.notes-textarea {
+.notes-section h4::before {
+  content: '📝';
+  font-size: 1rem;
+}
+
+.notes-section textarea {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  padding: 12px;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  resize: vertical;
   font-family: inherit;
   font-size: 0.9rem;
-  resize: vertical;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
 }
 
-.notes-textarea:focus {
+.notes-section textarea:focus {
   outline: none;
-  border-color: #8b5cf6;
+  border-color: var(--primary-color);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.notes-section textarea::placeholder {
+  color: #64748b;
 }
 
 .notes-hint {
-  font-size: 0.8rem;
-  color: #9ca3af;
-  margin-top: 5px;
-  text-align: right;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.notes-hint::before {
+  content: '💡';
+  font-size: 0.7rem;
 }
