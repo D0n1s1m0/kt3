@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/kt3/static/css/main.94a69468.css",
+    "main.js": "/kt3/static/js/main.5a575175.js",
+    "index.html": "/kt3/index.html",
+    "main.94a69468.css.map": "/kt3/static/css/main.94a69468.css.map",
+    "main.5a575175.js.map": "/kt3/static/js/main.5a575175.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.94a69468.css",
+    "static/js/main.5a575175.js"
+  ]
+}
